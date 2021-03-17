@@ -17,25 +17,36 @@ const Header = props => {
                         <img src={logo} alt="Ecommerce Logo" />
                     </Link>
                 </div>
-                
+
                 <div className="callToActions">
 
                     {currentUser && (
-                        <span onClick={() => auth.signOut()}>Logout</span>
+                        <ul>
+                            <li>
+                                <Link to="/dashboard">
+                                    My Account
+                            </Link>
+                            </li>
+                            <li>
+                                <span onClick={() => auth.signOut()}>Logout</span>
+                            </li>
+                        </ul>
                     )}
                     {!currentUser && (
                         <ul>
-                        <li>
-                            <Link to="/registration">
-                                Register
+                            <li>
+                            </li>
+                            <li>
+                                <Link to="/registration">
+                                    Register
                             </Link>
-                        </li>
-                        <li>
-                            <Link to="/login">
-                                Login
+                            </li>
+                            <li>
+                                <Link to="/login">
+                                    Login
                             </Link>
-                        </li>
-                    </ul>
+                            </li>
+                        </ul>
                     )}
                 </div>
             </div>
@@ -45,10 +56,10 @@ const Header = props => {
 }
 
 Header.defaultProps = {
-    currentUser : null
+    currentUser: null
 }
 
-const mapStateToProps = ({user}) => ({
+const mapStateToProps = ({ user }) => ({
     currentUser: user.currentUser
 })
 

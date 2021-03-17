@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import { withRouter } from 'react-router-dom';
 import './styles.scss';
 import FormInput from './../forms/FormInput';
 import Button from './../forms/Button';
@@ -6,44 +7,28 @@ import AuthWrapper from './../AuthWrapper';
 
 import { auth, handleUserProfile } from "./../../firebase/utils";
 
-const initialState = {
-    displayName:'',
-    email:'',
-    password:'',
-    confirmPassword:'',
-    errors:[]
-}
+const Signup = props => {
+    const [displayName, setDisplayName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [errors, setErrors] = useState('');
 
-class Signup extends Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            ...initialState
-        }
-
-        this.handleChange = this.handleChange.bind(this);
+    const resetForm = () => {
+        setDisplayName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('')
+        setErrors([]);
     }
 
-
-    handleChange(e) {
-        const { name, value} = e.target;
-
-        this.setState({
-            [name]: value
-        })
-    }
-
-    handlFormSubmit = async event => {
+    const handlFormSubmit = async event => {
         event.preventDefault();
-        const {displayName, email, password, confirmPassword} = this.state;
 
         // validate if password matches 
-        if(password !== confirmPassword) {
+        if (password !== confirmPassword) {
             const err = ['Passwords Dont\'t match'];
-            this.setState({
-                errors:err
-            });
+            setErrors(err);
             return;
         }
 
@@ -52,30 +37,26 @@ class Signup extends Component {
         // Once account is created the user is signed in automatically
         // We have added a listener in App.js on auth, so the app automatically understands that user has signed in
 
-        try{
+        try {
             const { user } = await auth.createUserWithEmailAndPassword(email, password);
-            await handleUserProfile (user, {displayName});
-
-            this.setState({
-                ...initialState
-            })
+            await handleUserProfile(user, { displayName });
+            resetForm();
+            props.history.push('/');
 
         } catch (err) {
             console.log(err);
         }
     }
 
-    render() {
-        const { displayName, email, password, confirmPassword, errors } = this.state;
-        const configAuthWrapper = {
-            headline: "Register"
-        }
-        return(
-                <AuthWrapper {...configAuthWrapper}>
-                    <div className="formWrap">
-                    {errors.length > 0 && (
-                        <ul>
-                            {
+    const configAuthWrapper = {
+        headline: "Register"
+    }
+    return (
+        <AuthWrapper {...configAuthWrapper}>
+            <div className="formWrap">
+                {errors.length > 0 && (
+                    <ul>
+                        {
                             errors.map((err, index) => {
                                 return (
                                     <li key={index}>
@@ -83,51 +64,51 @@ class Signup extends Component {
                                     </li>
                                 )
                             })
-                            }
-                        </ul>
-                        
-                    )}
-                        <form onSubmit={this.handlFormSubmit}>
-                        <FormInput
+                        }
+                    </ul>
+
+                )}
+                <form onSubmit={handlFormSubmit}>
+                    <FormInput
                         type="text"
                         name="displayName"
                         value={displayName}
-                        placeholder = "Full name"
-                        onChange={this.handleChange}
-                        />
+                        placeholder="Full name"
+                        onChange={e => setDisplayName(e.target.value)}
+                    />
 
-                        <FormInput
+                    <FormInput
                         type="email"
                         name="email"
                         value={email}
-                        placeholder = "Email"
-                        onChange={this.handleChange}
-                        />
+                        placeholder="Email"
+                        onChange={e => setEmail(e.target.value)}
+                    />
 
-                        <FormInput
+                    <FormInput
                         type="password"
                         name="password"
                         value={password}
-                        placeholder = "Password"
-                        onChange={this.handleChange}
-                        />
+                        placeholder="Password"
+                        onChange={e => setPassword(e.target.value)}
+                    />
 
-                        <FormInput
+                    <FormInput
                         type="password"
                         name="confirmPassword"
                         value={confirmPassword}
-                        placeholder = "Confirm Password"
-                        onChange={this.handleChange}
-                        />
+                        placeholder="Confirm Password"
+                        onChange={e => setConfirmPassword(e.target.value)}
+                    />
 
-                        <Button type="submit">
-                            Register
-                        </Button>
-                    </form>
-                    </div>
-                </AuthWrapper>
-        );
-    }
+                    <Button type="submit">
+                        Register
+                    </Button>
+                </form>
+            </div>
+        </AuthWrapper>
+    );
 }
 
-export default Signup;
+
+export default withRouter(Signup);
