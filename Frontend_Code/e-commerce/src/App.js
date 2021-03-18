@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Switch, Route } from 'react-router-dom';
 import { auth, handleUserProfile } from './firebase/utils';
 import { setCurrentUser } from './redux/User/user.actions';
 
@@ -21,7 +21,7 @@ import './default.scss';
 
 const App = props => {
 
-  const { setCurrentUser, currentUser } = props;
+  const dispatch = useDispatch();
 
   // Setup an event listener to subscribe on auth object that will allow us to determine when user has signed in
   // componentwillunmount will be used to unsubscribe to avoid memory leaks
@@ -34,13 +34,13 @@ const App = props => {
         // subscribe to onsnapshot to update the current state of the application
         userRef.onSnapshot(snapshot => {
 
-          setCurrentUser({
+          dispatch(setCurrentUser({
             id: snapshot.id,
             ...snapshot.data()
-          });
+          }));
         })
       } else {
-        setCurrentUser(userAuth);
+        dispatch(setCurrentUser(userAuth));
       }
     });
 
@@ -88,12 +88,4 @@ const App = props => {
   );
 }
 
-const mapStateToProps = ({ user }) => ({
-  currentUser: user.currentUser
-})
-
-const mapDispatchToProps = dispatch => ({
-  setCurrentUser: user => dispatch(setCurrentUser(user))
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

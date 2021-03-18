@@ -12,12 +12,11 @@ export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
 // custom pprovider for facebook, google, etc.
-const GoogleProvider = new firebase.auth.GoogleAuthProvider();
+export const GoogleProvider = new firebase.auth.GoogleAuthProvider();
 // set some parameters
 GoogleProvider.setCustomParameters({propmpt: 'select_account'});
 
 // utility function to call on for sign in with Google. signInWithPopup accepts above provider
-export const signInWithGoogle = () => auth.signInWithPopup(GoogleProvider)
 
 // code that pushes login data to database
 export const handleUserProfile = async (userAuth, additionalData) => {

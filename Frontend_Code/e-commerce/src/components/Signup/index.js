@@ -1,18 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import './styles.scss';
 import FormInput from './../forms/FormInput';
 import Button from './../forms/Button';
 import AuthWrapper from './../AuthWrapper';
+import { signUpUser, resetAllAuthForms } from './../../redux/User/user.actions';
 
-import { auth, handleUserProfile } from "./../../firebase/utils";
+const mapState = ({ user }) => ({
+    signUpSuccess: user.signUpSuccess,
+    signUpError: user.signUpError
+});
 
 const Signup = props => {
+
+    const { signUpSuccess, signUpError } = useSelector(mapState);
+    const dispatch = useDispatch();
     const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [errors, setErrors] = useState('');
+    const [errors, setErrors] = useState([]);
+
+    useEffect(() => {
+        if(signUpSuccess){
+            resetForm();
+            dispatch(resetAllAuthForms())
+            props.history.push("/");
+        }
+    }, [signUpSuccess]);
+
+    useEffect(() => {
+        if(Array.isArray(signUpError) && signUpError.length > 0) {
+            setErrors(signUpError)
+        }
+    }, [signUpError]);
 
     const resetForm = () => {
         setDisplayName('');
@@ -22,30 +44,9 @@ const Signup = props => {
         setErrors([]);
     }
 
-    const handlFormSubmit = async event => {
+    const handlFormSubmit = event => {
         event.preventDefault();
-
-        // validate if password matches 
-        if (password !== confirmPassword) {
-            const err = ['Passwords Dont\'t match'];
-            setErrors(err);
-            return;
-        }
-
-        // Create a user name using auth on firestore with username and passowrd
-        // The returned user profile is used to login and route to home page (handle from router)\
-        // Once account is created the user is signed in automatically
-        // We have added a listener in App.js on auth, so the app automatically understands that user has signed in
-
-        try {
-            const { user } = await auth.createUserWithEmailAndPassword(email, password);
-            await handleUserProfile(user, { displayName });
-            resetForm();
-            props.history.push('/');
-
-        } catch (err) {
-            console.log(err);
-        }
+        dispatch(signUpUser( {displayName, email, password, confirmPassword}))
     }
 
     const configAuthWrapper = {
