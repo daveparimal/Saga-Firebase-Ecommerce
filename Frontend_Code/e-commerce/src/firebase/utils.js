@@ -19,7 +19,7 @@ GoogleProvider.setCustomParameters({propmpt: 'select_account'});
 // utility function to call on for sign in with Google. signInWithPopup accepts above provider
 
 // code that pushes login data to database
-export const handleUserProfile = async (userAuth, additionalData) => {
+export const handleUserProfile = async ({ userAuth, additionalData }) => {
     // if user is null then return
     if(!userAuth) return;
     const { uid } = userAuth; 
@@ -46,4 +46,13 @@ export const handleUserProfile = async (userAuth, additionalData) => {
         }
     }
     return userRef;
+}
+
+export const getCurrentUser = () => {
+    return new Promise((resolve, reject) => {
+        const unsubscribe = auth.onAuthStateChanged(userAuth => {
+            unsubscribe();
+            resolve(userAuth);
+        }, reject);
+    })
 }

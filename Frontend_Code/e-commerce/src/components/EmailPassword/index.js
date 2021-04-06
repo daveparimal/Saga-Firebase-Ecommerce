@@ -1,79 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { withRouter }  from 'react-router-dom';
-import './styles.scss';
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
+import "./styles.scss";
 
+import AuthWrapper from "./../AuthWrapper";
+import FormInput from "./../forms/FormInput";
+import Button from "./../forms/Button";
 
-import AuthWrapper from './../AuthWrapper';
-import FormInput from './../forms/FormInput';
-import Button from './../forms/Button';
-
-import { resetPassword, resetAllAuthForms } from './../../redux/User/user.actions';
+import {
+  resetPasswordStart,
+  resetUserState,
+} from "./../../redux/User/user.actions";
 
 const mapState = ({ user }) => ({
-    resetPasswordSuccess: user.resetPasswordSuccess,
-    resetPasswordError: user.resetPasswordError
+  resetPasswordSuccess: user.resetPasswordSuccess,
+  userErr: user.userErr,
 });
 
-const EmailPassword = props => {
+const EmailPassword = (props) => {
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const { resetPasswordSuccess, userErr } = useSelector(mapState);
+  const [email, setEmail] = useState("");
+  const [errors, setErrors] = useState([]);
 
-    const dispatch  = useDispatch();
-    const { resetPasswordSuccess, resetPasswordError } = useSelector(mapState);
-    const [email, setEmail] = useState('');
-    const [errors, setErrors] = useState([]);
-
-    useEffect(() => {
-        if(resetPasswordSuccess) {
-            dispatch(resetAllAuthForms());
-            props.history.push("/");
-        }
-    }, [resetPasswordSuccess]);
-
-    useEffect(() => {
-        if(Array.isArray(resetPasswordError) && resetPasswordError.length > 0) {
-            setErrors(resetPasswordError);
-        }
-    }, [resetPasswordError])
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        dispatch(resetPassword({ email }));
-
+  useEffect(() => {
+    if (resetPasswordSuccess) {
+      dispatch(resetUserState());
+      history.push("/login");
     }
-        const configAuthWrapper = {
-            headline: "Email Password"
-        };
+  }, [resetPasswordSuccess]);
 
-        return (
-            <AuthWrapper {...configAuthWrapper}>
-                <div className="formWrap">
-                    {errors.length > 0 && (
-                        <ul>
-                            {errors.map((e, index) => {
-                                return (
-                                    <li key={index}>
-                                        {e}
-                                    </li>
-                                )
-                            })}
-                        </ul>
-                    )}
-                    <form onSubmit={handleSubmit}>
-                        <FormInput 
-                            type="email"
-                            name="email"
-                            value={email}
-                            placeholder="Email"
-                            onChange={e => setEmail(e.target.value)}
-                        />
-
-                    <Button type="submit">
-                        Email Password
-                    </Button>
-                    </form>
-                </div>
-            </AuthWrapper>
-        )
+  useEffect(() => {
+    if (Array.isArray(userErr) && userErr.length > 0) {
+      setErrors(userErr);
     }
+  }, [userErr]);
 
-export default withRouter(EmailPassword);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(resetPasswordStart({ email }));
+  };
+  const configAuthWrapper = {
+    headline: "Email Password",
+  };
+
+  return (
+    <AuthWrapper {...configAuthWrapper}>
+      <div className="formWrap">
+        {errors.length > 0 && (
+          <ul>
+            {errors.map((e, index) => {
+              return <li key={index}>{e}</li>;
+            })}
+          </ul>
+        )}
+        <form onSubmit={handleSubmit}>
+          <FormInput
+            type="email"
+            name="email"
+            value={email}
+            placeholder="Email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <Button type="submit">Email Password</Button>
+        </form>
+      </div>
+    </AuthWrapper>
+  );
+};
+
+export default EmailPassword;

@@ -1,0 +1,2 @@
+Redux Saga:
+It allows us to take all of the asynchronous code our of our action creators. It will intercept actions that u tell it to. Then call generator functions that can handle async events and dispatch another action to update ur redux store.
